@@ -1,40 +1,57 @@
+'use strict';
 
-function downloadXml(url) {
+var filePath = './xml/recipte.xml';
+var XHRequest = 'onload' in new XMLHttpRequest() ? XMLHttpRequest : XDomainRequest;
+var xhr = new XHRequest();
 
-	var xml;
-    if(window.XMLHttpRequest)
-    {
-        xml=new window.XMLHttpRequest();
-        xml.onloadend = ready;
-        xml.open("GET", url, false);
-        xml.send("");
-        return xml.responseXML;
+xhr.open('GET', filePath, true);
+
+xhr.onload = function() {
+    var responseDoc = this.responseXML;
+    var rootElem = document.getElementById('root');
+    var recipteArr = responseDoc.getElementsByTagName('recipte');
+    for (var i = 0; i < reciptesArr.length; i++) {
+        var bandContainer = document.createElement('div');
+        recipteContainer.classList.add('recipte');
+
+        var recipteName = document.createElement('h3');
+        recipteName.classList.add('recipte__header');
+        var name = recipteArr[i].getAttribute('name');
+        recipteName.innerHTML = name
+
+        var IngArr = recipteArr[i].getElementsByTagName('ing');
+
+        var recipteIngredientsHeader = document.createElement('h5');
+        recipteIngredientsHeader.classList.add('Ingredients__header');
+        recipteIngredientsHeader.innerHTML = 'Ингридиенты';
+
+        var recipteIngList = document.createElement('ul');
+        recipteIngredients.classList.add('recipte__ingredients');
+
+        for (var k = 0; k < ingsArr.length; k++) {
+            var recipteIng = document.createElement('li');
+            recipteIng.classList.add('recipte__ing');
+            var ingRole = ingsArr[k].getAttribute('role');
+            var ing = ingsArr[k].innerHTML;
+            recipteIng.innerHTML = ingRole + ing;
+            recipteIngList.appendChild(recipteIng);
+        }
+
+        var recipteInfo = document.createElement('p');
+        recipteInfo.classList.add('recipte__info');
+        var info = recipteArr[i].getElementsByTagName('cooking')[0].innerHTML;
+        recipteInfo.innerHTML = info;
+
+        recipteContainer.appendChild(recipteName);
+        recipteContainer.appendChild(recipteIngredientsHeader);
+        recipteContainer.appendChild(recipteIngredients);
+        recipteContainer.appendChild(recipteInfo);
+        rootElem.appendChild(recipteContainer);
     }
-    else
-        if(window.ActiveXObject)
-        {
-            xml=new ActiveXObject("Microsoft.XMLDOM");
-            xml.async=false;
-            xml.load(url);
-            return xml;
-        }
-        else
-        {
-            alert("Завантаження XML не підтримується браузером!");
-            return null;
-        }
-   };
-function tableUpdate(tableid){
-var xml = downloadXml("recipte.xml");
-}
-function ready(){
-xmltext=xml.responseXML;
-var rootTable = document.getElementById(tableid).tBodies[0];
-var ratesArr =xmltext.getElementsByTagName('recipte');
-for (var i = 0; i < rootTable.rows.length; i++) {
-var tableRow = rootTable.rows[i];
-tableRow.cells[0].innerHTML = ratesArr[i].getAttribute('name');
-tableRow.cells[1].innerHTML = ratesArr[i].getAttribute('role');
-tableRow.cells[2].innerHTML = ratesArr[i].getAttribute('cooking');
-tableUpdate("myTable");
-}
+};
+
+xhr.onerror = function() {
+    console.log('Error! ' + this.status + ':' + this.statusText);
+};
+
+xhr.send();
